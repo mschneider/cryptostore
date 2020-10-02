@@ -9,6 +9,7 @@ from multiprocessing import Process
 import logging
 
 from cryptofeed import FeedHandler
+from cryptofeed.backends.aggregate import Throttle
 from cryptofeed.defines import TRADES, L2_BOOK, L3_BOOK, BOOK_DELTA, TICKER, FUNDING, OPEN_INTEREST
 
 
@@ -78,7 +79,7 @@ class Collector(Process):
             elif callback_type == TICKER:
                 cb[TICKER] = [ticker_cb(**kwargs)]
             elif callback_type == L2_BOOK:
-                cb[L2_BOOK] = [book_cb(key=L2_BOOK, **kwargs)]
+                cb[L2_BOOK] = [Throttle(book_cb(key=L2_BOOK, **kwargs), window=window/1000)]
                 if book_up:
                     cb[BOOK_DELTA] = [book_up(key=L2_BOOK, **kwargs)]
             elif callback_type == L3_BOOK:
