@@ -10,6 +10,7 @@
   * Feature: Support for snapshot_interval
   * Bugfix: Set arctic storage quota to unlimited (rather than 10G)
   * Bugfix: Regression in arctic storage backend
+  * Bugfix: Fix exception handling in aggregator
 
 ### 0.3.0 (2020-08-18)
   * Feature: Config options for controlling data channel timeouts

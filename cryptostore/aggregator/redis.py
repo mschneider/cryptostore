@@ -48,7 +48,7 @@ class Redis(Cache):
 
         """
 
-        key = f'{dtype}-{exchange}-{pair}'
+        key = f'{exchange}-{dtype}-{pair}'
         if start and end:
             data = [[key, self.conn.xrange(key, min=start, max=end)]]
         else:

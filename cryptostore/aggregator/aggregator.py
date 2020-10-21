@@ -96,18 +96,18 @@ class Aggregator(Process):
 
                                 store.aggregate(data)
 
-                                retries = 0
+                                failures = 0
                                 while True:
-                                    if retries > self.config.storage_retries:
-                                        LOG.error("Failed to write after %d retries", self.config.storage_retries)
-                                        raise EngineWriteError
-
                                     try:
                                         # retrying this is ok, provided every
                                         # engine clears its internal buffer after writing successfully.
                                         store.write(exchange, dtype, pair, time.time())
-                                    except EngineWriteError:
-                                        retries += 1
+                                    except Exception as e:
+                                        failures += 1
+                                        LOG.warning("Failed to write %s-%s-%s failure %d/%d error was %s", exchange, dtype, pair, failures, self.config.storage_retries, e)
+                                        if failures > self.config.storage_retries:
+                                            raise EngineWriteError("storage retries reached")
+
                                         await asyncio.sleep(self.config.storage_retry_wait)
                                         continue
                                     else:
