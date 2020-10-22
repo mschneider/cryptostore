@@ -4,6 +4,7 @@ Copyright (C) 2018-2020  Bryant Moscon - bmoscon@gmail.com
 Please see the LICENSE file for the terms and conditions
 associated with this software.
 '''
+import logging
 import pandas as pd
 import pymongo
 from cryptofeed.defines import TRADES, L2_BOOK, L3_BOOK, TICKER, FUNDING, OPEN_INTEREST
@@ -12,6 +13,7 @@ from cryptostore.data.store import Store
 from cryptostore.engines import StorageEngines
 from cryptostore.exceptions import EngineWriteError
 
+LOG = logging.getLogger('cryptostore')
 
 class Arctic(Store):
     def __init__(self, connection: str):
