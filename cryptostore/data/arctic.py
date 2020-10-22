@@ -65,6 +65,7 @@ class Arctic(Store):
                 self.con.set_quota(exchange, 0)
             self.con[exchange].append(f"{data_type}-{pair}", df, upsert=True, chunk_size=chunk_size)
         except pymongo.errors.ServerSelectionTimeoutError as e:
+            LOG.warning(f"Arctic: Failed to write data {e.msg}")
             raise EngineWriteError('mongodb timeout', e.msg)
 
     def get_start_date(self, exchange: str, data_type: str, pair: str) -> float:

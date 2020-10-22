@@ -100,7 +100,7 @@ class InfluxDB(Store):
             r = requests.post(self.addr, data=c)
             # per influx docs, returns 204 on success
             if r.status_code != 204:
-                LOG.error("Influx: Failed to write data to %s - %d:%s", self.addr, r.status_code, r.reason)
+                LOG.warning("Influx: Failed to write data to %s - %d:%s", self.addr, r.status_code, r.reason)
                 raise EngineWriteError(r.status_code, r.reason)
         self.data = None
 
