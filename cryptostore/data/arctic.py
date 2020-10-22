@@ -5,10 +5,12 @@ Please see the LICENSE file for the terms and conditions
 associated with this software.
 '''
 import pandas as pd
+import pymongo
 from cryptofeed.defines import TRADES, L2_BOOK, L3_BOOK, TICKER, FUNDING, OPEN_INTEREST
 
 from cryptostore.data.store import Store
 from cryptostore.engines import StorageEngines
+from cryptostore.exceptions import EngineWriteError
 
 
 class Arctic(Store):
@@ -56,11 +58,14 @@ class Arctic(Store):
         df.set_index('date', inplace=True)
         # All timestamps are in UTC
         df.index = df.index.tz_localize(None)
-        if exchange not in self.con.list_libraries():
-            self.con.initialize_library(exchange, lib_type=StorageEngines.arctic.CHUNK_STORE)
-            # set the quota of each arctic library to unlimited
-            self.con.set_quota(exchange, 0)
-        self.con[exchange].append(f"{data_type}-{pair}", df, upsert=True, chunk_size=chunk_size)
+        try:
+            if exchange not in self.con.list_libraries():
+                self.con.initialize_library(exchange, lib_type=StorageEngines.arctic.CHUNK_STORE)
+                # set the quota of each arctic library to unlimited
+                self.con.set_quota(exchange, 0)
+            self.con[exchange].append(f"{data_type}-{pair}", df, upsert=True, chunk_size=chunk_size)
+        except pymongo.errors.ServerSelectionTimeoutError as e:
+            raise EngineWriteError('mongodb timeout', e.msg)
 
     def get_start_date(self, exchange: str, data_type: str, pair: str) -> float:
         try:
